@@ -1,0 +1,38 @@
+variables:
+  scratchOrgAlias: 'scratch-org'
+
+trigger:
+  - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '12.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm install -g sfdx-cli
+      sfdx --version
+    displayName: 'Install SFDX CLI'
+
+  - script: |
+      sfdx force:auth:sfdxurl:store -f sfdxAuthUrl --setdefaultdevhubusername -a DevHub
+    displayName: 'Authenticate to Dev Hub'
+
+  - script: |
+      sfdx force:org:create --setalias $scratchOrgAlias --durationdays 1 --setdefaultusername
+      sfdx force:source:push
+      sfdx force:apex:test:run --resultformat human --wait 10
+      sfdx force:apex:test:report
+    displayName: 'Deploy to Scratch Org and Run Tests'
+
+  - script: |
+      sfdx force:source:deploy --wait 10 --testlevel RunLocalTests --targetusername $scratchOrgAlias
+    displayName: 'Deploy Changes to Salesforce Org'
+
+  - script: |
+      sfdx force:org:delete --targetusername $scratchOrgAlias --noprompt
+    displayName: 'Delete Scratch Org'
