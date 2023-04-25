@@ -19,7 +19,7 @@ steps:
     displayName: 'Install SFDX CLI'
 
   - script: |
-      sfdx force:auth:sfdxurl:store -f sfdxAuthUrl --setdefaultdevhubusername -a DevHub
+      sfdx force:auth:sfdxurl:store -f $sfdxAuthUrl --setdefaultdevhubusername -a DevHub
     displayName: 'Authenticate to Dev Hub'
 
   - script: |
