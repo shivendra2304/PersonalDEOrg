@@ -14,6 +14,11 @@ steps:
       sfdx --version
     displayName: 'Install SFDX CLI'
 
+    - script: |
+      npm install -g @salesforce/cli
+      sf --version
+    displayName: 'Install SF CLI'
+
   - script: |
       echo $(sfdxAuthUrl) | base64 -d > sfdxAuthUrlFile
       sfdx force:auth:sfdxurl:store -f sfdxAuthUrlFile --setdefaultdevhubusername -a DevHub
@@ -28,13 +33,24 @@ steps:
     displayName: 'Push Source to Scratch Org'
 
   - script: |
-      sfdx force:apex:test:run --resultformat human --wait 10
-      sfdx force:apex:test:report
+      sf apex run test --code-coverage --detailed-coverage --result-format human
     displayName: 'Run Tests'
 
   - script: |
-      sfdx force:source:deploy --wait 10 --testlevel RunLocalTests --targetusername $(SCRATCHORGALIAS)
-    displayName: 'Deploy Changes to Salesforce Org'
+      sfdx force:source:convert --outputdir deploy-dir
+    displayName: 'Convert Source to Metadata API Format'
+
+  - script: |
+      sfdx force:mdapi:deploy --checkonly --deploydir deploy-dir --testlevel RunLocalTests -w 10
+    displayName: 'Validate Changes Against Development Sandbox'
+
+  - script: |
+      sfdx force:mdapi:deploy:report --json
+    displayName: 'Display Validation Results'
+  
+  - script: |
+      sfdx force:source:deploy --wait 10 --testlevel RunLocalTests --targetusername DevHub
+    displayName: 'Deploy Changes to Development Sandbox'
 
   - script: |
       sfdx force:org:delete --targetusername $(SCRATCHORGALIAS) --noprompt
