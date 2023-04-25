@@ -2,7 +2,7 @@ variables:
   scratchOrgAlias: 'scratch-org'
 
 trigger:
-  - master
+  - main
 
 pool:
   vmImage: 'ubuntu-latest'
