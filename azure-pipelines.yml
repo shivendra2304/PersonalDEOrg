@@ -14,7 +14,7 @@ steps:
       sfdx --version
     displayName: 'Install SFDX CLI'
 
-    - script: |
+  - script: |
       npm install -g @salesforce/cli
       sf --version
     displayName: 'Install SF CLI'
