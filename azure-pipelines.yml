@@ -41,7 +41,7 @@ steps:
     displayName: 'Convert Source to Metadata API Format'
 
   - script: |
-      sfdx force:mdapi:deploy --checkonly --deploydir deploy-dir --testlevel RunLocalTests -w 10
+      sfdx force:mdapi:deploy --checkonly --deploydir deploy-dir
     displayName: 'Validate Changes Against Development Sandbox'
 
   - script: |
